@@ -40,13 +40,16 @@ def demo(config):
       device=device,
       skip_check=True)
 
-  vis_pcd = o3d.geometry.PointCloud()
-  vis_pcd.points = o3d.utility.Vector3dVector(xyz_down)
+  np.savez(config.output_file, xyz=xyz_down, feature=feature.cpu().detach().numpy())
 
-  vis_pcd = get_colored_point_cloud_feature(vis_pcd,
-                                            feature.detach().cpu().numpy(),
-                                            config.voxel_size)
-  o3d.visualization.draw_geometries([vis_pcd])
+  if config.visualize:
+    vis_pcd = o3d.geometry.PointCloud()
+    vis_pcd.points = o3d.utility.Vector3dVector(xyz_down)
+
+    vis_pcd = get_colored_point_cloud_feature(vis_pcd,
+                                              feature.detach().cpu().numpy(),
+                                              config.voxel_size)
+    o3d.visualization.draw_geometries([vis_pcd])
 
 
 if __name__ == '__main__':
@@ -68,6 +71,16 @@ if __name__ == '__main__':
       default=0.025,
       type=float,
       help='voxel size to preprocess point cloud')
+  parser.add_argument(
+      '--output_file',
+      default="output",
+      type=str,
+      help="path to save outputs")
+  parser.add_argument(
+      '--visualize',
+      default=False,
+      type=bool,
+      help="visualize colored features")
 
   config = parser.parse_args()
   demo(config)
